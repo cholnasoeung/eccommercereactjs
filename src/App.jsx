@@ -5,14 +5,16 @@ import Register from './pages/Register';
 import Cart from './pages/Cart';
 import Orders from './pages/Orders';
 import ProductDetails from './pages/ProductDetails';
+import Checkout from './pages/Checkout';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts';
+import AdminCategories from './pages/AdminCategories';
+import AdminUsers from './pages/AdminUsers';
 import AdminLayout from './layouts/AdminLayout';
 import Navbar from './components/Navbar';
 import './styles/App.css';
-import './styles/Admin.css'; // Import Admin CSS
-import AdminCategories from './pages/AdminCategories';
-import AdminUsers from './pages/AdminUsers';
+import './styles/Admin.css';
+
 // Component to conditionally show Customer Navbar
 function Layout() {
   const location = useLocation();
@@ -28,18 +30,16 @@ function Layout() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
         <Route path="/orders" element={<Orders />} />
 
         {/* ADMIN ROUTES (Wrapped in AdminLayout) */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
-          <Route index element={<AdminDashboard />} />
-<Route path="products" element={<AdminProducts />} />
-<Route path="categories" element={<AdminCategories />} />
-<Route path="users" element={<AdminUsers />} />
+          <Route path="categories" element={<AdminCategories />} />
+          <Route path="users" element={<AdminUsers />} />
         </Route>
-        
       </Routes>
     </>
   );

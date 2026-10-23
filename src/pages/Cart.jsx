@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaShoppingCart } from 'react-icons/fa';
 import api from '../api/axios';
 
 export default function Cart() {
@@ -7,56 +8,46 @@ export default function Cart() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // THIS IS WHERE THE USEEFFECT GOES
   useEffect(() => {
+    // Fetch the cart data fresh every time the page loads
     api.get('/cart')
       .then(response => setCart(response.data))
       .catch(err => {
-        console.error(err);
-        if (err.response) {
-          if (err.response.status === 403 || err.response.status === 401) {
-            setError('Error 403: Forbidden. Your token might be expired. Please login again.');
-          } else {
-            setError(`Error ${err.response.status}: Failed to load cart.`);
-          }
+        if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+          setError('Please login to view your cart.');
         } else {
-          setError('Network Error. Is your Spring Boot backend running?');
+          setError('Failed to load cart.');
         }
       });
-  }, []);
+  }, []); 
 
-  const checkout = async () => {
-    try {
-      await api.post('/orders/checkout');
-      alert('✅ Checkout Successful! Thank you for your order.');
-      navigate('/');
-    } catch (err) {
-      console.error(err);
-      const errorMsg = err.response?.data?.message || err.response?.data || "Checkout failed. Please try again.";
-      alert(`❌ Checkout failed: ${errorMsg}`);
-    }
+  const proceedToCheckout = () => {
+    navigate('/checkout');
   };
 
   if (error) {
     return (
-      <div className="cart-page">
+      <div className="cart-page text-center py-5">
         <h2 style={{ color: '#ef4444' }}>{error}</h2>
-        <button onClick={() => navigate('/login')} className="checkout-btn" style={{ marginTop: '20px' }}>
+        <button onClick={() => navigate('/login')} className="checkout-btn" style={{ marginTop: '20px', maxWidth: '300px' }}>
           Go to Login
         </button>
       </div>
     );
   }
 
-  if (!cart) return <div className="cart-page"><h2>Loading cart...</h2></div>;
+  if (!cart) return <div className="cart-page text-center py-5"><h2>Loading cart...</h2></div>;
 
   if (!cart.items || cart.items.length === 0) {
     return (
       <div className="cart-page">
         <h2 className="cart-title">Shopping Cart</h2>
         <div style={{ textAlign: 'center', padding: '50px 0' }}>
-          <h3 style={{ color: '#666' }}>Your cart is empty 🛒</h3>
-          <button onClick={() => navigate('/')} className="checkout-btn" style={{ marginTop: '20px', maxWidth: '300px', margin: '20px auto 0' }}>
-            Continue Shopping
+          <FaShoppingCart size={60} color="#e5e7eb" style={{ marginBottom: '20px' }} />
+          <h3 style={{ color: '#666' }}>Your cart is empty</h3>
+          <button onClick={() => navigate('/')} className="checkout-btn" style={{ marginTop: '20px', maxWidth: '300px' }}>
+            Start Shopping
           </button>
         </div>
       </div>
@@ -86,7 +77,7 @@ export default function Cart() {
         </div>
       </div>
 
-      <button onClick={checkout} className="checkout-btn">
+      <button onClick={proceedToCheckout} className="checkout-btn">
         Proceed to Checkout
       </button>
     </div>

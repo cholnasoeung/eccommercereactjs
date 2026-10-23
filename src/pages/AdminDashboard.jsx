@@ -11,12 +11,10 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // Modal State
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    // Fetch all necessary data concurrently
     Promise.all([
       api.get('/admin/orders'),
       api.get('/products?size=100'),
@@ -38,7 +36,6 @@ export default function AdminDashboard() {
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       await api.put(`/admin/orders/${orderId}/status?status=${newStatus}`);
-      // Update local state without refetching everything
       setOrders(orders.map(o => o.orderId === orderId ? { ...o, status: newStatus } : o));
     } catch (err) {
       alert('❌ Failed to update status.');
@@ -60,11 +57,9 @@ export default function AdminDashboard() {
     }
   };
 
-  // --- CALCULATE STATISTICS ---
   const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
   const lowStockProducts = products.filter(p => p.stockQuantity < 5);
 
-  // Calculate Chart Data (Last 7 Days)
   const chartDataMap = {};
   orders.forEach(order => {
     const date = new Date(order.orderDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -73,7 +68,7 @@ export default function AdminDashboard() {
   const chartData = Object.keys(chartDataMap).map(date => ({
     date,
     revenue: chartDataMap[date]
-  })).slice(-7); // Get last 7 active days
+  })).slice(-7);
 
   if (loading) return <div className="text-center mt-5"><h3>Loading Dashboard...</h3></div>;
   if (error) return <div className="text-center mt-5"><h2 className="text-danger">{error}</h2></div>;
@@ -92,7 +87,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* 4 STAT CARDS */}
       <div className="row g-4 mb-4">
         <div className="col-md-3">
           <div className="stat-card">
@@ -141,7 +135,6 @@ export default function AdminDashboard() {
       </div>
 
       <div className="row g-4 mb-4">
-        {/* REVENUE CHART */}
         <div className="col-lg-8">
           <div className="admin-card h-100">
             <h3 className="admin-card-title d-flex align-items-center gap-2">
@@ -173,7 +166,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* LOW STOCK ALERTS */}
         <div className="col-lg-4">
           <div className="admin-card h-100">
             <h3 className="admin-card-title text-danger d-flex align-items-center gap-2">
@@ -207,7 +199,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* RECENT ORDERS TABLE */}
       <div className="admin-card">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3 className="admin-card-title mb-0">Recent Orders</h3>
@@ -254,21 +245,38 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* ORDER DETAILS MODAL */}
+      {/* ORDER DETAILS MODAL - THIS IS WHERE YOU SEE THE ADDRESS */}
       {showModal && selectedOrder && (
         <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-dialog modal-dialog-centered modal-lg">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title fw-bold">Order #{selectedOrder.orderId} Details</h5>
                 <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
               <div className="modal-body">
-                <p><strong>Customer:</strong> {selectedOrder.customerEmail}</p>
-                <p><strong>Date:</strong> {new Date(selectedOrder.orderDate).toLocaleString()}</p>
-                <table className="table table-sm mt-3">
-                  <thead>
-                    <tr><th>Product</th><th>Qty</th><th>Price</th></tr>
+                <div className="row mb-4">
+                  <div className="col-md-6">
+                    <h6 className="fw-bold text-secondary mb-2">Customer Info</h6>
+                    <p className="mb-1"><strong>Email:</strong> {selectedOrder.customerEmail}</p>
+                    <p className="mb-1"><strong>Date:</strong> {new Date(selectedOrder.orderDate).toLocaleString()}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <h6 className="fw-bold text-secondary mb-2">Shipping Details</h6>
+                    <p className="mb-1"><strong>Phone:</strong> {selectedOrder.phoneNumber || 'N/A'}</p>
+                    <p className="mb-1"><strong>Address:</strong> {selectedOrder.shippingAddress || 'N/A'}</p>
+                    <p className="mb-1"><strong>Payment:</strong> {selectedOrder.paymentMethod || 'N/A'}</p>
+                  </div>
+                </div>
+
+                <h6 className="fw-bold text-secondary mb-2">Items Purchased</h6>
+                <table className="table table-sm table-bordered mt-2">
+                  <thead className="table-light">
+                    <tr>
+                      <th>Product</th>
+                      <th>Qty</th>
+                      <th>Price</th>
+                    </tr>
                   </thead>
                   <tbody>
                     {selectedOrder.items?.map((item, index) => (
@@ -280,9 +288,15 @@ export default function AdminDashboard() {
                     ))}
                   </tbody>
                 </table>
+                
                 <h5 className="text-end mt-3 text-warning fw-bold">
                   Total: ${selectedOrder.totalAmount.toFixed(2)}
                 </h5>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                  Close
+                </button>
               </div>
             </div>
           </div>
