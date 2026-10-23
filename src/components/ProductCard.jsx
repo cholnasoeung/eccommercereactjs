@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'; // <-- Import Link
+import { Link } from 'react-router-dom';
+import { FaStar, FaCheckCircle, FaShoppingCart } from 'react-icons/fa';
 import api from '../api/axios';
 
 export default function ProductCard({ product }) {
@@ -25,16 +26,20 @@ export default function ProductCard({ product }) {
         <h3 className="product-title">{product.name}</h3>
       </Link>
       
-      <div className="stars">★★★★★</div>
+      <div className="stars" style={{ display: 'flex', justifyContent: 'center', gap: '3px' }}>
+        <FaStar color="#f59e0b" /> <FaStar color="#f59e0b" /> <FaStar color="#f59e0b" /> <FaStar color="#f59e0b" /> <FaStar color="#f59e0b" />
+      </div>
       
       <div className="stock-status">
-        <span style={{ background: '#10b981', color: 'white', borderRadius: '50%', width: '14px', height: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>✓</span>
+        <FaCheckCircle color="#10b981" />
         In Stock ({product.stockQuantity})
       </div>
       
       <div className="price-row">
         <span className="price">${product.price.toFixed(2)}</span>
-        <button className="btn-add" onClick={addToCart}>Add to Cart</button>
+        <button className="btn-add" onClick={addToCart}>
+          <FaShoppingCart style={{ marginRight: '5px' }} /> Add
+        </button>
       </div>
     </div>
   );

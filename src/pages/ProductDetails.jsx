@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaArrowLeft, FaStar, FaCheckCircle, FaShoppingCart } from 'react-icons/fa';
 import api from '../api/axios';
 
 export default function ProductDetails() {
@@ -36,7 +37,9 @@ export default function ProductDetails() {
 
   return (
     <div className="product-details-page">
-      <button onClick={() => navigate(-1)} className="back-btn">← Back to Products</button>
+      <button onClick={() => navigate(-1)} className="back-btn">
+        <FaArrowLeft style={{ marginRight: '8px' }} /> Back to Products
+      </button>
 
       <div className="product-details-container">
         {/* Left Side: Image */}
@@ -53,11 +56,19 @@ export default function ProductDetails() {
           <div className="brand-badge">ASUS / LENOVO</div>
           <h1 className="details-title">{product.name}</h1>
           
-          <div className="stars" style={{ fontSize: '18px', marginBottom: '20px' }}>★★★★★</div>
+          {/* Stars with Icons */}
+          <div className="stars" style={{ display: 'flex', gap: '5px', marginBottom: '20px' }}>
+            <FaStar color="#f59e0b" size={20}/> <FaStar color="#f59e0b" size={20}/> 
+            <FaStar color="#f59e0b" size={20}/> <FaStar color="#f59e0b" size={20}/> 
+            <FaStar color="#f59e0b" size={20}/>
+          </div>
           
           <div className="details-price">${product.price.toFixed(2)}</div>
           
-          <p className="details-stock">In Stock: {product.stockQuantity} units</p>
+          {/* Stock with Icon */}
+          <p className="details-stock" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FaCheckCircle color="#10b981" /> In Stock: {product.stockQuantity} units
+          </p>
           
           <div className="details-description">
             <h3>Description</h3>
@@ -77,8 +88,13 @@ export default function ProductDetails() {
               onClick={addToCart} 
               className="btn-add-large"
               disabled={product.stockQuantity === 0}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-              {product.stockQuantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+              {product.stockQuantity === 0 ? 'Out of Stock' : (
+                <>
+                  <FaShoppingCart style={{marginRight: '10px'}}/> Add to Cart
+                </>
+              )}
             </button>
           </div>
         </div>

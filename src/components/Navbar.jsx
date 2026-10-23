@@ -1,11 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { FaPhoneAlt, FaTruck, FaFacebookF, FaInstagram, FaTelegramPlane, FaSearch, FaSyncAlt, FaHeart, FaShoppingCart, FaUser, FaBars } from 'react-icons/fa';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const token = localStorage.getItem('token');
   
+  let isAdmin = false;
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      isAdmin = payload.role === 'ROLE_ADMIN';
+    } catch (e) {
+      console.error("Invalid token");
+    }
+  }
+
   const [searchParams] = useSearchParams();
   const currentUrlSearch = searchParams.get('search') || '';
   
@@ -43,12 +54,14 @@ export default function Navbar() {
     <>
       <div className="top-bar">
         <div className="top-bar-left">
-          <span>📞 012 220 152</span>
-          <span>📞 093 456 747</span>
-          <span>🚚 Delivery within 1 hour / Delivery 25 Provinces</span>
+          <span><FaPhoneAlt /> 012 220 152</span>
+          <span><FaPhoneAlt /> 093 456 747</span>
+          <span><FaTruck /> Delivery within 1 hour / Delivery 25 Provinces</span>
         </div>
         <div className="top-bar-right">
-          <span>f</span> <span>📸</span> <span>✈️</span>
+          <span><FaFacebookF /></span> 
+          <span><FaInstagram /></span> 
+          <span><FaTelegramPlane /></span>
         </div>
       </div>
 
@@ -69,19 +82,19 @@ export default function Navbar() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button className="search-btn">🔍</button>
+          <button className="search-btn"><FaSearch /></button>
         </div>
 
         <div className="header-icons">
-          <div className="icon-group"><span>🔄</span><span>Compare</span></div>
-          <div className="icon-group"><span>❤️</span><span>Wishlist</span></div>
+          <div className="icon-group"><FaSyncAlt size={20}/><span>Compare</span></div>
+          <div className="icon-group"><FaHeart size={20}/><span>Wishlist</span></div>
           
           <Link to="/cart" className="icon-group" style={{ textDecoration: 'none' }}>
-            <span>🛒</span><span>Cart</span>
+            <FaShoppingCart size={20}/><span>Cart</span>
           </Link>
           
           <div className="icon-group">
-            <span>👤</span>
+            <FaUser size={20}/>
             {token ? (
               <span onClick={handleLogout} style={{color: '#ef4444', cursor: 'pointer'}}>Logout</span>
             ) : (
@@ -92,8 +105,15 @@ export default function Navbar() {
       </div>
 
       <div className="nav-menu">
-        <Link to="/" className="nav-item">☰ Home</Link>
-        <Link to="/orders" className="nav-item">📦 My Orders</Link>
+        <Link to="/" className="nav-item"><FaBars /> Home</Link>
+        <Link to="/orders" className="nav-item">My Orders</Link>
+        
+        {isAdmin && (
+          <Link to="/admin" className="nav-item" style={{ color: '#ef4444', fontWeight: 'bold' }}>
+            Admin Panel
+          </Link>
+        )}
+
         <div className="nav-item special-offer">Special Offer ▾</div>
         <div className="nav-item">Shop ▾</div>
         <div className="nav-item">Laptop / Desktop</div>
