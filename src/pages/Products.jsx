@@ -15,23 +15,16 @@ export default function Products() {
   const searchQuery = searchParams.get('search') || '';
   const categoryQuery = searchParams.get('category') || '';
 
-  // Fetch categories from the database on load
   useEffect(() => {
     api.get('/categories')
       .then(res => setCategories(res.data))
       .catch(err => console.error("Error fetching categories", err));
   }, []);
 
-  // Fetch products when search, category, or page changes
   useEffect(() => {
     setLoading(true);
     api.get('/products', {
-      params: {
-        search: searchQuery,
-        category: categoryQuery,
-        page: page,
-        size: 8
-      }
+      params: { search: searchQuery, category: categoryQuery, page: page, size: 8 }
     })
       .then(response => {
         setProducts(response.data.content);
@@ -44,55 +37,56 @@ export default function Products() {
       });
   }, [searchQuery, categoryQuery, page]);
 
-  // Reset page to 0 when search or category changes
   useEffect(() => {
     setPage(0);
   }, [searchQuery, categoryQuery]);
 
   const handleCategoryClick = (categoryName) => {
     const newParams = new URLSearchParams(searchParams);
-    if (categoryName) {
-      newParams.set('category', categoryName);
-    } else {
-      newParams.delete('category');
-    }
+    if (categoryName) newParams.set('category', categoryName);
+    else newParams.delete('category');
     setSearchParams(newParams);
   };
 
   return (
-    <div className="home-container">
-      {/* HERO BANNER (Only show if no search/category is active) */}
+    <div className="home-container fade-in">
+      {/* HERO BANNER WITH MOVEMENT */}
       {!searchQuery && !categoryQuery && (
         <>
           <div className="hero-banner">
+            {/* Floating shapes for movement */}
+            <div className="hero-shape shape-1"></div>
+            <div className="hero-shape shape-2"></div>
+            <div className="hero-shape shape-3"></div>
+
             <div className="hero-content">
-              <span className="hero-badge">New Arrivals 2026</span>
+              <span className="hero-badge pulse-anim">New Arrivals 2026</span>
               <h1>Level Up Your <br/> Gaming Setup</h1>
               <p>Get up to 40% off on premium mechanical keyboards, mice, and monitors.</p>
-              <Link to="/?category=Gaming" className="hero-btn">
-                Shop Now <FaArrowRight />
+              <Link to="/?category=Gaming" className="hero-btn hover-grow">
+                Shop Now <FaArrowRight className="arrow-icon" />
               </Link>
             </div>
           </div>
 
-          {/* PROMO FEATURES */}
+          {/* PROMO FEATURES WITH HOVER LIFT */}
           <div className="promo-features">
-            <div className="promo-item">
-              <FaTruck size={30} color="#f59e0b" />
+            <div className="promo-item hover-lift">
+              <div className="promo-icon-bg"><FaTruck size={24} color="#f59e0b" /></div>
               <div>
                 <h4>Fast Delivery</h4>
                 <p>Within 1 hour in the city</p>
               </div>
             </div>
-            <div className="promo-item">
-              <FaShieldAlt size={30} color="#f59e0b" />
+            <div className="promo-item hover-lift">
+              <div className="promo-icon-bg"><FaShieldAlt size={24} color="#f59e0b" /></div>
               <div>
                 <h4>1 Year Warranty</h4>
                 <p>100% genuine products</p>
               </div>
             </div>
-            <div className="promo-item">
-              <FaHeadset size={30} color="#f59e0b" />
+            <div className="promo-item hover-lift">
+              <div className="promo-icon-bg"><FaHeadset size={24} color="#f59e0b" /></div>
               <div>
                 <h4>24/7 Support</h4>
                 <p>Dedicated customer care</p>
@@ -102,7 +96,7 @@ export default function Products() {
         </>
       )}
 
-      {/* MAIN LAYOUT (Sidebar + Products) */}
+      {/* MAIN LAYOUT */}
       <div className="page-wrapper">
         <div className="sidebar">
           <h3 className="sidebar-title">Categories</h3>
@@ -110,19 +104,16 @@ export default function Products() {
             <li 
               className={`category-item ${categoryQuery === '' ? 'active-category' : ''}`}
               onClick={() => handleCategoryClick('')}
-              style={{ fontWeight: categoryQuery === '' ? 'bold' : 'normal', color: categoryQuery === '' ? '#f59e0b' : '#444' }}
             >
-              All Products <span>›</span>
+              All Products <span className="chevron">›</span>
             </li>
-
             {categories.map((cat) => (
               <li 
                 key={cat.id} 
-                className="category-item"
+                className={`category-item ${categoryQuery === cat.name ? 'active-category' : ''}`}
                 onClick={() => handleCategoryClick(cat.name)}
-                style={{ fontWeight: categoryQuery === cat.name ? 'bold' : 'normal', color: categoryQuery === cat.name ? '#f59e0b' : '#444' }}
               >
-                {cat.name} <span>›</span>
+                {cat.name} <span className="chevron">›</span>
               </li>
             ))}
           </ul>
@@ -134,21 +125,19 @@ export default function Products() {
           </div>
 
           <div className="content-header">
-            <h2>
-              {searchQuery ? `Results for "${searchQuery}"` : (categoryQuery ? `${categoryQuery} Products` : 'All Products')}
-            </h2>
-            <div className="filters">
-              <select className="filter-select"><option>Brands: All</option></select>
-              <select className="filter-select"><option>Sort by: Newest</option></select>
-            </div>
+            <h2>{searchQuery ? `Results for "${searchQuery}"` : (categoryQuery ? `${categoryQuery} Products` : 'All Products')}</h2>
           </div>
 
           {loading ? (
-            <div className="text-center py-5"><div className="spinner-border text-warning" role="status"></div></div>
+            /* SKELETON LOADER instead of a basic spinner */
+            <div className="product-grid">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
+                <div key={n} className="skeleton-card"></div>
+              ))}
+            </div>
           ) : products.length === 0 ? (
             <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
               <h3>No products found.</h3>
-              <p>Try searching or selecting a different category.</p>
             </div>
           ) : (
             <>
@@ -158,26 +147,20 @@ export default function Products() {
                 ))}
               </div>
 
-              {/* Pagination */}
+              {/* PAGINATION */}
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '40px', gap: '20px' }}>
                 <button 
                   className="btn-add" 
                   disabled={page === 0} 
-                  onClick={() => { setPage(page - 1); window.scrollTo(0, 0); }}
-                  style={{ opacity: page === 0 ? 0.5 : 1, cursor: page === 0 ? 'not-allowed' : 'pointer' }}
+                  onClick={() => { setPage(page - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 >
                   ← Previous
                 </button>
-                
-                <span style={{ fontWeight: 'bold' }}>
-                  Page {page + 1} of {totalPages}
-                </span>
-                
+                <span style={{ fontWeight: 'bold' }}>Page {page + 1} of {totalPages}</span>
                 <button 
                   className="btn-add" 
                   disabled={page === totalPages - 1 || totalPages === 0} 
-                  onClick={() => { setPage(page + 1); window.scrollTo(0, 0); }}
-                  style={{ opacity: page === totalPages - 1 || totalPages === 0 ? 0.5 : 1, cursor: page === totalPages - 1 || totalPages === 0 ? 'not-allowed' : 'pointer' }}
+                  onClick={() => { setPage(page + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 >
                   Next →
                 </button>
