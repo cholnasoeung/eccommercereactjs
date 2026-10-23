@@ -1,12 +1,23 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
-import { FaPhoneAlt, FaTruck, FaFacebookF, FaInstagram, FaTelegramPlane, FaSearch, FaSyncAlt, FaHeart, FaShoppingCart, FaUser, FaBars } from 'react-icons/fa';
+import { FaPhoneAlt, FaTruck, FaFacebookF, FaInstagram, FaTelegramPlane, FaSearch, FaSyncAlt, FaHeart, FaShoppingCart, FaUser, FaBars, FaChevronDown } from 'react-icons/fa';
+import api from '../api/axios'; // Import API to fetch categories
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const token = localStorage.getItem('token');
   
+  // State for categories
+  const [categories, setCategories] = useState([]);
+
+  // Fetch categories on load
+  useEffect(() => {
+    api.get('/categories')
+      .then(res => setCategories(res.data))
+      .catch(err => console.error("Error fetching categories", err));
+  }, []);
+
   let isAdmin = false;
   if (token) {
     try {
@@ -105,7 +116,9 @@ export default function Navbar() {
       </div>
 
       <div className="nav-menu">
-        <Link to="/" className="nav-item"><FaBars /> Home</Link>
+        <Link to="/" className="nav-item" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <FaBars /> Home
+        </Link>
         <Link to="/orders" className="nav-item">My Orders</Link>
         
         {isAdmin && (
@@ -114,12 +127,24 @@ export default function Navbar() {
           </Link>
         )}
 
-        <div className="nav-item special-offer">Special Offer ▾</div>
-        <div className="nav-item">Shop ▾</div>
-        <div className="nav-item">Laptop / Desktop</div>
-        <div className="nav-item">Gaming</div>
-        <div className="nav-item">Brands</div>
-        <div className="nav-item">Customer Care ▾</div>
+        <Link to="/" className="nav-item" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          Shop <FaChevronDown size={12} />
+        </Link>
+
+        {/* DYNAMIC CATEGORY LINKS */}
+        {categories.slice(0, 3).map(cat => (
+          <Link 
+            key={cat.id} 
+            to={`/?category=${encodeURIComponent(cat.name)}`} 
+            className="nav-item"
+          >
+            {cat.name}
+          </Link>
+        ))}
+        
+        <Link to="/" className="nav-item" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          Customer Care <FaChevronDown size={12} />
+        </Link>
       </div>
     </>
   );
