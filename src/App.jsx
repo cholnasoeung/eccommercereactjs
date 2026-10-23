@@ -12,10 +12,10 @@ import AdminCategories from './pages/AdminCategories';
 import AdminUsers from './pages/AdminUsers';
 import AdminLayout from './layouts/AdminLayout';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer'; // <--- Import Footer
 import './styles/App.css';
 import './styles/Admin.css';
 
-// Component to conditionally show Customer Navbar
 function Layout() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
@@ -23,8 +23,8 @@ function Layout() {
   return (
     <>
       {!isAdminRoute && <Navbar />}
+      
       <Routes>
-        {/* CUSTOMER ROUTES */}
         <Route path="/" element={<Products />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/login" element={<Login />} />
@@ -33,7 +33,6 @@ function Layout() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/orders" element={<Orders />} />
 
-        {/* ADMIN ROUTES (Wrapped in AdminLayout) */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
@@ -41,6 +40,8 @@ function Layout() {
           <Route path="users" element={<AdminUsers />} />
         </Route>
       </Routes>
+
+      {!isAdminRoute && <Footer />} {/* <--- Render Footer here */}
     </>
   );
 }

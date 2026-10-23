@@ -1,10 +1,52 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { FaTruck, FaShieldAlt, FaHeadset, FaArrowRight } from 'react-icons/fa';
+import { FaTruck, FaShieldAlt, FaHeadset, FaArrowRight, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
 
 export default function Products() {
+  // --- Hero Slider Data ---
+  const slides = [
+    {
+      title: "Level Up Your Gaming Setup",
+      subtitle: "Get up to 40% off on premium mechanical keyboards, mice, and monitors.",
+      link: "/?category=Gaming",
+      btnText: "Shop Gaming",
+      bg: "linear-gradient(135deg, #1e1e2d 0%, #2c3552 100%)",
+      badge: "New Arrivals 2026"
+    },
+    {
+      title: "Work & Play Without Limits",
+      subtitle: "Discover the latest high-performance laptops designed for productivity and entertainment.",
+      link: "/?category=Laptop",
+      btnText: "Shop Laptops",
+      bg: "linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)",
+      badge: "Top Rated"
+    },
+    {
+      title: "Immerse Yourself in Sound",
+      subtitle: "Studio-quality headphones and speakers. Feel every beat with crystal clear audio.",
+      link: "/",
+      btnText: "Shop Audio",
+      bg: "linear-gradient(135deg, #3a1c71 0%, #d76d77 50%, #ffaf7b 100%)",
+      badge: "Best Sellers"
+    }
+  ];
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto-play slider
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+    }, 5000); // Changes every 5 seconds
+    return () => clearInterval(timer);
+  }, [slides.length]);
+
+  const nextSlide = () => setCurrentSlide(currentSlide === slides.length - 1 ? 0 : currentSlide + 1);
+  const prevSlide = () => setCurrentSlide(currentSlide === 0 ? slides.length - 1 : currentSlide - 1);
+
+  // --- Products Data & Logic ---
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,26 +92,50 @@ export default function Products() {
 
   return (
     <div className="home-container fade-in">
-      {/* HERO BANNER WITH MOVEMENT */}
+      
+      {/* DYNAMIC HERO SLIDER */}
       {!searchQuery && !categoryQuery && (
         <>
-          <div className="hero-banner">
-            {/* Floating shapes for movement */}
-            <div className="hero-shape shape-1"></div>
-            <div className="hero-shape shape-2"></div>
-            <div className="hero-shape shape-3"></div>
+          <div className="hero-slider-container">
+            {/* The sliding track */}
+            <div 
+              className="hero-slider-track" 
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              {slides.map((slide, index) => (
+                <div key={index} className="hero-slide" style={{ background: slide.bg }}>
+                  <div className="hero-shape shape-1"></div>
+                  <div className="hero-shape shape-2"></div>
+                  
+                  <div className="hero-content">
+                    <span className="hero-badge pulse-anim">{slide.badge}</span>
+                    <h1>{slide.title}</h1>
+                    <p>{slide.subtitle}</p>
+                    <Link to={slide.link} className="hero-btn hover-grow">
+                      {slide.btnText} <FaArrowRight className="arrow-icon" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-            <div className="hero-content">
-              <span className="hero-badge pulse-anim">New Arrivals 2026</span>
-              <h1>Level Up Your <br/> Gaming Setup</h1>
-              <p>Get up to 40% off on premium mechanical keyboards, mice, and monitors.</p>
-              <Link to="/?category=Gaming" className="hero-btn hover-grow">
-                Shop Now <FaArrowRight className="arrow-icon" />
-              </Link>
+            {/* Slider Arrows */}
+            <button className="slider-arrow left" onClick={prevSlide}><FaChevronLeft /></button>
+            <button className="slider-arrow right" onClick={nextSlide}><FaChevronRight /></button>
+
+            {/* Slider Dots */}
+            <div className="slider-dots">
+              {slides.map((_, index) => (
+                <div 
+                  key={index} 
+                  className={`slider-dot ${currentSlide === index ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(index)}
+                ></div>
+              ))}
             </div>
           </div>
 
-          {/* PROMO FEATURES WITH HOVER LIFT */}
+          {/* PROMO FEATURES */}
           <div className="promo-features">
             <div className="promo-item hover-lift">
               <div className="promo-icon-bg"><FaTruck size={24} color="#f59e0b" /></div>
@@ -129,7 +195,6 @@ export default function Products() {
           </div>
 
           {loading ? (
-            /* SKELETON LOADER instead of a basic spinner */
             <div className="product-grid">
               {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
                 <div key={n} className="skeleton-card"></div>
@@ -147,7 +212,6 @@ export default function Products() {
                 ))}
               </div>
 
-              {/* PAGINATION */}
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '40px', gap: '20px' }}>
                 <button 
                   className="btn-add" 
